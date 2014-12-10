@@ -1,6 +1,8 @@
 require 'bundler/setup'
 require 'racktables_api'
 require 'authenticator'
+require 'digest/sha1'
+require 'model/user'
 
 $stderr.puts <<BANNER
        _                    _
@@ -10,7 +12,6 @@ $stderr.puts <<BANNER
  |_|  \\__|      \\__,_| .__/|_|
                      |_|
 
-WARNING: This is the development mode. Access is granted if user name and password are the same.
 BANNER
 
 class SetLogger
@@ -29,6 +30,10 @@ end
 
 use SetLogger
 
-use Authenticator do |user, pass| user == pass end
+use Authenticator do |user, pass|
+  next false if user.empty? || pass.empty?
+
+  Model::User::Account.where({:user_name => user, :user_password_hash => Digest::SHA1.hexdigest(pass)}).count == 1
+end
 
 run RacktablesApi.to_app
