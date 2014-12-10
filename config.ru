@@ -1,6 +1,6 @@
 require 'bundler/setup'
 require 'racktables_api'
-require 'authenticator'
+require 'racktables_authenticator'
 require 'digest/sha1'
 require 'model/user'
 
@@ -30,10 +30,6 @@ end
 
 use SetLogger
 
-use Authenticator do |user, pass|
-  next false if user.empty? || pass.empty?
-
-  Model::User::Account.where({:user_name => user, :user_password_hash => Digest::SHA1.hexdigest(pass)}).count == 1
-end
+use RacktablesAuthenticator
 
 run RacktablesApi.to_app
