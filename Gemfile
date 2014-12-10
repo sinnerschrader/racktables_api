@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'sinatra', '>1.0'
+gem 'puma', '2.10.2'
 
 group :development do
   gem 'mysql2'
