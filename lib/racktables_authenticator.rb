@@ -5,7 +5,7 @@ require 'digest'
 class RacktablesAuthenticator < Rack::Auth::Basic
 
   def initialize(app)
-    super (app) do |user, pass|
+    super(app, self.class.name) do |user, pass|
       next false if user.empty? || pass.empty?
 
       Model::User::Account.where({:user_name => user, :user_password_hash => Digest::SHA1.hexdigest(pass)}).count == 1
