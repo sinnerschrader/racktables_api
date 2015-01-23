@@ -5,11 +5,7 @@ require 'digest'
 class RacktablesAuthenticator < Rack::Auth::Basic
 
   def initialize(app)
-    super(app, self.class.name) do |user, pass|
-      next false if user.empty? || pass.empty?
-
-      Model::User::Account.where({:user_name => user, :user_password_hash => Digest::SHA1.hexdigest(pass)}).count == 1
-    end
+    super(app, self.class.name)
   end
 
   def call(env)
@@ -21,16 +17,14 @@ class RacktablesAuthenticator < Rack::Auth::Basic
 
       auth = Rack::Auth::Basic::Request.new(env)
 
-      if auth.provided? and auth.basic? and valid?(auth)
-        if env.key?('rack.session')
-          env['rack.session']['user'] = auth.username
-          env['rack.session']['auth'] = 'authenticator'
+      if auth.provided? and auth.basic?
+        if Model::User::Account.where({
+          :user_name => auth.credentials.first,
+          :user_password_hash => Digest::SHA1.hexdigest(auth.credentials.last)}).count == 1
+          return @app.call(env)
         end
-        env['racktables.auth'] = {'user' => auth.username, 'type' => 'authenticator'}
       end
-
-      return @app.call(env)
-
+      unauthorized
     end
   end
 

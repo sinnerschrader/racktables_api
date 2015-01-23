@@ -53,7 +53,7 @@ class << self
 
       end
 
-      use ApiKeyAuthenticator
+      use RacktablesAuthenticator
 
       use Logistician::Context::Ensure, :statsd do |env|
         require 'statsd_fake'

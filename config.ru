@@ -30,6 +30,4 @@ end
 
 use SetLogger
 
-use RacktablesAuthenticator
-
 run RacktablesApi.to_app
